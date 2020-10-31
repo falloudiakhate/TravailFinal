@@ -1,9 +1,8 @@
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import umontreal.ssj.rng.MRG32k3a;
 import umontreal.ssj.rng.RandomStream;
 
-import java.util.ArrayList;
-import java.util.Hashtable;
-import java.util.Random;
+import java.util.*;
 
 class RendezVous{
 
@@ -28,6 +27,18 @@ class RendezVous{
     static ArrayList<String> conseillers = new ArrayList<String>();
     static Hashtable<Integer, String> plageHoraire = new Hashtable<Integer, String>();
 
+    //waitList for every "Conseiller"
+
+    static  Hashtable<String, LinkedList<ClientB>> waitListConseiller = new Hashtable<String, LinkedList<ClientB>>();
+
+    //    It will be in this following format :
+    //    {
+    //        "C1" : client1 -- > client2 -- > clientn,
+    //        "C2" : client1 -- > client2 -- > client3,
+    //        "C3" : client1 -- > null,
+    //
+    //    }
+
 
     //Méthode pour définir les conseillers
     public void init(){
@@ -35,25 +46,22 @@ class RendezVous{
             conseillers.add("C"+i.toString());
         }
 
-        plageHoraire.put(1,"10H");
-        plageHoraire.put(2,"10H 30");
-        plageHoraire.put(3,"11H");
-        plageHoraire.put(4,"11H 30");
-        plageHoraire.put(5,"12H");
-        plageHoraire.put(6,"12H 30");
-        plageHoraire.put(7,"13H");
-        plageHoraire.put(8,"13H 30");
-        plageHoraire.put(9,"14H");
-        plageHoraire.put(10,"14H 30");
-        plageHoraire.put(11,"15H");
-        plageHoraire.put(12,"15H 30");
+        plageHoraire.put(1,"10:00");
+        plageHoraire.put(2,"10:30");
+        plageHoraire.put(3,"11:00");
+        plageHoraire.put(4,"11:30");
+        plageHoraire.put(5,"12:00");
+        plageHoraire.put(6,"12:30");
+        plageHoraire.put(7,"13:00");
+        plageHoraire.put(8,"13:30");
+        plageHoraire.put(9,"14:00");
+        plageHoraire.put(10,"14:30");
+        plageHoraire.put(11,"15:00");
+        plageHoraire.put(12,"15:30");
 
     }
 
-    class ClientB {
-        String conseiller;
-        int plage;
-    }
+
     // La répartition des conseillers dans chaque plage
     static ArrayList<ArrayList<String>> repartitionConseillers = new ArrayList<ArrayList<String>>();
     static ArrayList<ClientB> clients = new ArrayList<ClientB>();
@@ -61,6 +69,7 @@ class RendezVous{
     // Contient les rendez vous de chaque conseiller
     static ArrayList<Hashtable<String, ArrayList<String>>> tab_rendez_vous = new ArrayList<Hashtable<String, ArrayList<String>>>();
 
+    static Hashtable<String, Boolean> etatConseiller = new Hashtable<String, Boolean>();
 
     public void repartirConseiller() {
 		/*
@@ -97,19 +106,26 @@ class RendezVous{
             int probabilite = 0;
             ArrayList<String> plages = definirPlage(conseiller);
             for(int i = 0; i < plages.size(); i++) {
-                // On vérifie la probabilité r d'avoir un rendez vous
+                // On vérifie la probabilité r d'avoir un    System.out.println(client); rendez vous
                 probabilite = stream.nextDouble() <= r ? 1 : 0;
                 if(probabilite == 1) {
                     // Puis on ajoute le client à la liste de client avec un rendez vous
                     ClientB client = new ClientB();
                     client.conseiller = conseiller;
-                    client.plage = i+1;
+                    client.plage = plages.get(i);
                     clients.add(client);
+
                 }
                 else {
                     // Il aura ou pas un rendez vous à la plage i
                     plages.set(i, null);
                 }
+                // We create the waitlist of this 'conseiller'
+                waitListConseiller.put(conseiller, new LinkedList<ClientB>());
+
+                // We set the busyness of the 'conseiller'
+                // It will change every time we have an arrival or a departure
+                etatConseiller.put(conseiller, false); // false --> pas occupe
             }
             // Fais correspondre le conseiller avec ses horaires de rendez vous
             Hashtable<String, ArrayList<String>> meeting = new Hashtable<String, ArrayList<String>>();
@@ -117,6 +133,7 @@ class RendezVous{
             tab_rendez_vous.add(meeting);
         }
     }
+
 
     ArrayList<String> definirPlage(String conseiller) {
 		/*
@@ -136,14 +153,25 @@ class RendezVous{
             for(int i = 9; i < 13; i++) plage.add(plageHoraire.get(i));
         }
         return plage;
+
+
     }
+
+
+    public void StringRV() {
+        for(ClientB cl : clients){
+            System.out.println("Un Client C a un Rendez-Vous avec le Conseiller " +cl.conseiller+ " à "+cl.plage);
+        }
+    };
     public static void main (String[] args) {
-        RendezVous rendezVous = new RendezVous(5, 1, 3, 0.8);
+        RendezVous rendezVous = new RendezVous(2, 3, 3, 0.8);
 
         rendezVous.repartirConseiller();
         rendezVous.programmerRendezVous();
+        rendezVous.StringRV();
 
-        System.out.println(RendezVous.tab_rendez_vous.toString());
+
+//        System.out.println(RendezVous.tab_rendez_vous.toString());
 //        System.out.println(RendezVous.clients.get(1).conseiller.toString());
 //        System.out.println(RendezVous.clients.get(1).plage);
     }

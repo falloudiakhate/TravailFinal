@@ -28,6 +28,7 @@ public class Periode {
         Sim.start();
     }
 
+
     class Arrival extends Event {
         public void actions() {
             new Arrival().schedule (genArrA.nextDouble()); // Next arrival.
