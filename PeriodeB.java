@@ -4,10 +4,6 @@ import umontreal.ssj.randvar.RandomVariateGen;
 import umontreal.ssj.rng.MRG32k3a;
 import umontreal.ssj.simevents.Event;
 import umontreal.ssj.simevents.Sim;
-import umontreal.ssj.simevents.*;
-import umontreal.ssj.rng.*;
-import umontreal.ssj.randvar.*;
-import umontreal.ssj.stat.*;
 import java.util.LinkedList;
 
 
@@ -22,12 +18,12 @@ public class PeriodeB {
 
     RandomVariateGen retard ;
     RandomVariateGen genServB;
-    LinkedList<ClientB> servList = new LinkedList<ClientB>();
+    // LinkedList<ClientB> servList = new LinkedList<ClientB>();
 
 
-    public PeriodeB (double sigma, double mu, double mu_r, double sigma_r) {
+    public PeriodeB (double sigma_b, double mu_b, double mu_r, double sigma_r) {
         retard = new RandomVariateGen (new MRG32k3a(), new NormalDist(mu_r, sigma_r));
-        genServB = new RandomVariateGen (new MRG32k3a(), new LognormalDist(mu, sigma));
+        genServB = new RandomVariateGen (new MRG32k3a(), new LognormalDist(mu_b, sigma_b));
     }
 
 
@@ -53,6 +49,7 @@ public class PeriodeB {
     public void simulateOneRun (double timeHorizon) {
         Sim.init();
         new PeriodeB.EndOfSim().schedule (timeHorizon);
+        genArrB();
         Sim.start();
     }
 
@@ -66,17 +63,15 @@ public class PeriodeB {
         }
 
         public void actions() {
-
             clientB.arrivTime = Sim.time();
             clientB.servTime = genServB.nextDouble();
             // Check if the conseiller is free
             // if true, he enters in the waitlist of the conseiller
             // else the client enters in service
-
             if(RendezVous.etatConseiller.get(clientB.conseiller)){
                 // We add the client in the waitlist of the conseiller
                 RendezVous.waitListConseiller.get(clientB.conseiller).addLast(clientB);
-
+                System.out.println("New one in Hello Stack !!!");
                 // We update the totwait by adding the size of the waitlist of the client
                 Simulateur.totWait.update (RendezVous.waitListConseiller.get(clientB.conseiller).size());
             }
@@ -85,6 +80,7 @@ public class PeriodeB {
                 Simulateur.custWaits.add (0.0);
                 RendezVous.etatConseiller.put(clientB.conseiller, true);
                 new PeriodeB.Departure(clientB).schedule (clientB.servTime);
+                // System.out.println(RendezVous.etatConseiller.toString());
             }
         }
     }
@@ -94,16 +90,23 @@ public class PeriodeB {
         ClientB clientB;
         public Departure(ClientB clientB) {
             this.clientB = clientB;
+            RendezVous.etatConseiller.put(clientB.conseiller, false);
+
         }
 
         public void actions() {
             if (RendezVous.etatConseiller.get(clientB.conseiller) == false) {
                 // Starts service for next one in queue.
-                ClientB clientB = RendezVous.waitListConseiller.get(this.clientB.conseiller).pop();
-                Simulateur.totWait.update (RendezVous.waitListConseiller.get(this.clientB.conseiller).size());
-                Simulateur.custWaits.add (Sim.time() - clientB.arrivTime);
+                // If there is a client in the stack of the 'conseiller', we will take him.
+                if(RendezVous.waitListConseiller.get(this.clientB.conseiller).size() > 0){
+                    ClientB clientB = RendezVous.waitListConseiller.get(this.clientB.conseiller).removeFirst();
+                    Simulateur.totWait.update (RendezVous.waitListConseiller.get(this.clientB.conseiller).size());
+                    Simulateur.custWaits.add (Sim.time() - clientB.arrivTime);
+                    RendezVous.etatConseiller.put(clientB.conseiller, true);
+                    System.out.println("Hello Stack !!!");
 
-                new PeriodeB.Departure(clientB).schedule(clientB.servTime);
+                    new PeriodeB.Departure(clientB).schedule(clientB.servTime);
+                }
             }
         }
     }
