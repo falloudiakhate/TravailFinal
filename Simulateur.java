@@ -16,15 +16,12 @@ public class Simulateur {
         double mu = Math.log10(Math.pow ( mu_a, 2 )/Math.sqrt ( Math.pow ( sigma_a, 2 ) + Math.pow ( mu_a, 2 ) ));
 
 
-        RendezVous rendezVous = new RendezVous(2, 3, 3, 1);
+        RendezVous rendezVous = new RendezVous(1, 3, 3, 1);
         rendezVous.repartirConseiller();
         rendezVous.programmerRendezVous();
-        //rendezVous.StringRV();
 
-      /*  System.out.println (sigma);
-        System.out.println (mu);*/
 
-        PeriodeB periode_1 = new PeriodeB (1, 3, 100, 90);
+        PeriodeB periode_1 = new PeriodeB (4, 6, 100, 90, 0.05);
         periode_1.simulateOneRun (7200);
         System.out.println (Simulateur.custWaits.report());
         System.out.println (Simulateur.totWait.report());
