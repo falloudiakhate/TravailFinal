@@ -5,17 +5,17 @@ import umontreal.ssj.randvar.*;
 import umontreal.ssj.stat.*;
 import java.util.LinkedList;
 
-public class Periode {
+public class PeriodeA {
 
     int nbCaissiers;
 
     RandomVariateGen genArrA;
     RandomVariateGen genServA;
-    LinkedList<CustomerA> servList = new LinkedList<CustomerA> ();
+    LinkedList<ClientA> servList = new LinkedList<ClientA> ();
 
 
 
-    public Periode (double sigma, double mu, double lambda, int nbCaisiers) {
+    public PeriodeA (double sigma, double mu, double lambda, int nbCaisiers) {
         genArrA = new ExponentialGen (new MRG32k3a(), lambda);
         genServA = new RandomVariateGen (new MRG32k3a(), new LognormalDist (mu, sigma));
         this.nbCaissiers = nbCaisiers;
@@ -32,12 +32,12 @@ public class Periode {
     class Arrival extends Event {
         public void actions() {
             new Arrival().schedule (genArrA.nextDouble()); // Next arrival.
-            CustomerA cust = new CustomerA();  // Cust just arrived.
+            ClientA cust = new ClientA();  // Cust just arrived.
             cust.arrivTime = Sim.time();
             cust.servTime = genServA.nextDouble();
             if (servList.size() > nbCaissiers + 1) {       // Must join the queue.
-                Simulateur.waitList.addLast (cust);
-                Simulateur.totWait.update (Simulateur.waitList.size());
+                Simulateur.waitListA.addLast (cust);
+                Simulateur.totWait.update (Simulateur.waitListA.size());
             } else {                         // Starts service.
                 Simulateur.custWaits.add (0.0);
                 servList.addLast (cust);
@@ -49,10 +49,10 @@ public class Periode {
     class Departure extends Event {
         public void actions() {
             servList.removeFirst();
-            if (Simulateur.waitList.size() > 0) {
+            if (Simulateur.waitListA.size() > 0) {
                 // Starts service for next one in queue.
-                CustomerA cust = Simulateur.waitList.removeFirst();
-                Simulateur.totWait.update (Simulateur.waitList.size());
+                ClientA cust = Simulateur.waitListA.removeFirst();
+                Simulateur.totWait.update (Simulateur.waitListA.size());
                 Simulateur.custWaits.add (Sim.time() - cust.arrivTime);
                 servList.addLast (cust);
                 new Departure().schedule (cust.servTime);

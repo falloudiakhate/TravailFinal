@@ -6,7 +6,7 @@ import java.util.LinkedList;
 public class Simulateur {
     static  Tally custWaits     = new Tally ("Waiting times");
     static  Accumulate totWait  = new Accumulate ("Size of queue");
-    static  LinkedList<CustomerA> waitList = new LinkedList<CustomerA> ();
+    static  LinkedList<ClientA> waitListA = new LinkedList<ClientA> ();
 
 
     public static void main (String[] args) {

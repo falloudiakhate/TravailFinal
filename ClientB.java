@@ -1,8 +1,7 @@
-public class ClientB {
+public class ClientB extends Client {
     String conseiller;
     String plage;
-    double arrivTime;
-    double servTime;
     int numConseiller;
+
 
 }

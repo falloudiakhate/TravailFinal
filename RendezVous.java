@@ -28,7 +28,7 @@ class RendezVous{
 
     //waitList for every "Conseiller"
 
-    static  Hashtable<String, LinkedList<ClientB>> waitListConseiller = new Hashtable<String, LinkedList<ClientB>>();
+    static  Hashtable<String, LinkedList<Client>> waitListConseiller = new Hashtable<String, LinkedList<Client>>();
 
     //    It will be in this following format :
     //    {
@@ -63,7 +63,7 @@ class RendezVous{
 
     // La répartition des conseillers dans chaque plage
     static ArrayList<ArrayList<String>> repartitionConseillers = new ArrayList<ArrayList<String>>();
-    static ArrayList<ClientB> clients = new ArrayList<ClientB>();
+    static ArrayList<Client> clients = new ArrayList<Client>();
 
     // Contient les rendez vous de chaque conseiller
     static ArrayList<Hashtable<String, ArrayList<String>>> tab_rendez_vous = new ArrayList<Hashtable<String, ArrayList<String>>>();
@@ -109,7 +109,7 @@ class RendezVous{
                 probabilite = stream.nextDouble() <= r ? 1 : 0;
                 if(probabilite == 1) {
                     // Puis on ajoute le client à la liste de client avec un rendez vous
-                    ClientB client = new ClientB();
+                    Client client = new Client();
                     client.conseiller = conseiller;
                     client.plage = plages.get(i);
                     clients.add(client);
@@ -120,7 +120,7 @@ class RendezVous{
                     plages.set(i, null);
                 }
                 // We create the waitlist of this 'conseiller'
-                waitListConseiller.put(conseiller, new LinkedList<ClientB>());
+                waitListConseiller.put(conseiller, new LinkedList<Client>());
 
                 // We set the busyness of the 'conseiller'
                 // It will change every time we have an arrival or a departure
@@ -158,7 +158,7 @@ class RendezVous{
 
 
     public void StringRV() {
-        for(ClientB cl : clients){
+        for(Client cl : clients){
             System.out.println("Un Client C a un Rendez-Vous avec le Conseiller " +cl.conseiller+ " à "+cl.plage);
         }
     };
