@@ -3,8 +3,11 @@ import umontreal.ssj.rng.RandomStream;
 
 import java.util.*;
 
-class RendezVous{
+class Plannificator{
 
+    public  int n1;
+    public int n2;
+    public  int n3;
    public  int m1;
    public int m2;
    public  int m3;
@@ -13,7 +16,11 @@ class RendezVous{
    RandomStream stream = new MRG32k3a();
 
 
-    public RendezVous(int m1, int m2, int m3, double r) {
+    public Plannificator(int n1, int n2, int n3, int m1, int m2, int m3, double r) {
+        this.n1 = n1;
+        this.n2 = n2;
+        this.n3 = n3;
+
         this.m1 = m1;
         this.m2 = m2;
         this.m3 = m3;
@@ -24,7 +31,7 @@ class RendezVous{
 
 
     static ArrayList<String> conseillers = new ArrayList<String>();
-    static Hashtable<Integer, String> plageHoraire = new Hashtable<Integer, String>();
+    static Hashtable<Integer, String> plageHoraire = new Hashtable<>();
 
     //waitList for every "Conseiller"
 
@@ -63,6 +70,9 @@ class RendezVous{
 
     // La répartition des conseillers dans chaque plage
     static ArrayList<ArrayList<String>> repartitionConseillers = new ArrayList<ArrayList<String>>();
+
+    static ArrayList<ArrayList<String>> repartitionCaissiers = new ArrayList<ArrayList<String>>();
+
     static ArrayList<Client> clients = new ArrayList<Client>();
 
     // Contient les rendez vous de chaque conseiller
@@ -85,6 +95,19 @@ class RendezVous{
 
     }
 
+    public void repartirCaissiers() {
+		/*
+			On répartit chacun des caissiers dans les périodes ou ils travaillent
+		*/
+        for (int ni : new int[]{n1, n2, n3}){
+            ArrayList<String> pi = new ArrayList<String>();
+            for( int i=1; i < ni +1 ; i++){
+                pi.add("c"+i);
+            }
+            repartitionCaissiers.add(pi);
+        }
+
+    }
     public void programmerRendezVous() {
         //Ce tableau contiendra l'ensemble des rendez vous sous format
 		/*
@@ -113,11 +136,12 @@ class RendezVous{
                     client.conseiller = conseiller;
                     client.plage = plages.get(i);
                     clients.add(client);
+                    plages.set(i, plages.get(i) + " oui");  // oui for saying he has a RV on this plage
 
                 }
                 else {
                     // Il aura ou pas un rendez vous à la plage i
-                    plages.set(i, null);
+                    plages.set(i, plages.get(i) + " non");  // non for saying he hasn't a RV on this plage
                 }
                 // We create the waitlist of this 'conseiller'
                 waitListConseiller.put(conseiller, new LinkedList<Client>());
@@ -142,14 +166,14 @@ class RendezVous{
 
         // Si le coneiller est dans une période donnée, les plages correspondantes sont ajoutées
 
-        if(RendezVous.repartitionConseillers.get(0).contains(conseiller)) {
-            for(int i = 1; i < 5; i++) plage.add(plageHoraire.get(i));
+        if(Plannificator.repartitionConseillers.get(0).contains(conseiller)) {
+            for(int i = 1; i <4 ; i++) plage.add(plageHoraire.get(i));
         }
-        if(RendezVous.repartitionConseillers.get(1).contains(conseiller)) {
-            for(int i = 5; i < 9; i++) plage.add(plageHoraire.get(i));
+        if(Plannificator.repartitionConseillers.get(1).contains(conseiller)) {
+            for(int i = 4; i < 8; i++) plage.add(plageHoraire.get(i));
         }
-        if(RendezVous.repartitionConseillers.get(2).contains(conseiller)) {
-            for(int i = 9; i < 13; i++) plage.add(plageHoraire.get(i));
+        if(Plannificator.repartitionConseillers.get(2).contains(conseiller)) {
+            for(int i = 8; i < 12; i++) plage.add(plageHoraire.get(i));
         }
         return plage;
 
@@ -163,15 +187,15 @@ class RendezVous{
         }
     };
     public static void main (String[] args) {
-        RendezVous rendezVous = new RendezVous(2, 3, 3, 0.8);
-
+        Plannificator rendezVous = new Plannificator(3, 4, 3, 2, 3, 3, 0.8);
         rendezVous.repartirConseiller();
+
         rendezVous.programmerRendezVous();
         rendezVous.StringRV();
 
 
-//        System.out.println(RendezVous.tab_rendez_vous.toString());
-//        System.out.println(RendezVous.clients.get(1).conseiller.toString());
-//        System.out.println(RendezVous.clients.get(1).plage);
+//        System.out.println(Plannificator.tab_rendez_vous.toString());
+//        System.out.println(Plannificator.clients.get(1).conseiller.toString());
+//        System.out.println(Plannificator.clients.get(1).plage);
     }
 }

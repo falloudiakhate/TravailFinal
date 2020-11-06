@@ -50,7 +50,7 @@ public class PeriodeB {
         We first check the probability for the client not to be present
         If he will be present, we schedule the RV with a certain lateness
          */
-        for(Client cl : RendezVous.clients){
+        for(Client cl : Plannificator.clients){
             final boolean present = stream.nextDouble() <= p ? false : true;
             if(present){
                 int arrivalTime = convertTimeInSecond(cl.plage) + (int)retard.nextDouble();
@@ -84,18 +84,18 @@ public class PeriodeB {
             // Check if the conseiller is free
             // if true, he enters in the waitlist of the conseiller
             // else the client enters in service
-            if(RendezVous.etatConseiller.get(Client.conseiller)==true){
+            if(Plannificator.etatConseiller.get(Client.conseiller)==true){
                 // We add the client in the waitlist of the conseiller
-                RendezVous.waitListConseiller.get(Client.conseiller).addLast(Client);
+                Plannificator.waitListConseiller.get(Client.conseiller).addLast(Client);
                 // We update the totwait by adding the size of the waitlist of the client
-                Simulateur.totWait.update (RendezVous.waitListConseiller.get(Client.conseiller).size());
+                Simulateur.totWait.update (Plannificator.waitListConseiller.get(Client.conseiller).size());
             }
             else{
                 // Starts service
-                Simulateur.custWaits.add (0.0);
-                RendezVous.etatConseiller.put(Client.conseiller, true);
+                Simulateur.custWaitsB.add (0.0);
+                Plannificator.etatConseiller.put(Client.conseiller, true);
                 new PeriodeB.Departure(Client).schedule (Client.servTime);
-                // System.out.println(RendezVous.etatConseiller.toString());
+                // System.out.println(Plannificator.etatConseiller.toString());
             }
         }
     }
@@ -108,15 +108,15 @@ public class PeriodeB {
         }
 
         public void actions() {
-            RendezVous.etatConseiller.put(Client.conseiller, false);
+            Plannificator.etatConseiller.put(Client.conseiller, false);
 
                 // Starts service for next one in queue.
                 // If there is a client in the stack of the 'conseiller', we will take him.
-                if(RendezVous.waitListConseiller.get(this.Client.conseiller).size() > 0){
-                    Client Client = RendezVous.waitListConseiller.get(this.Client.conseiller).removeFirst();
-                    Simulateur.totWait.update (RendezVous.waitListConseiller.get(this.Client.conseiller).size());
-                    Simulateur.custWaits.add (Sim.time() - Client.arrivTime);
-                    RendezVous.etatConseiller.put(Client.conseiller, true);
+                if(Plannificator.waitListConseiller.get(this.Client.conseiller).size() > 0){
+                    Client Client = Plannificator.waitListConseiller.get(this.Client.conseiller).removeFirst();
+                    Simulateur.totWait.update (Plannificator.waitListConseiller.get(this.Client.conseiller).size());
+                    Simulateur.custWaitsB.add (Sim.time() - Client.arrivTime);
+                    Plannificator.etatConseiller.put(Client.conseiller, true);
 
                     new PeriodeB.Departure(Client).schedule(Client.servTime);
                 }

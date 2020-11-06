@@ -6,4 +6,5 @@ public class Client{
     String conseiller = "";
     String plage;
     int numConseiller;
+    String type_serveur;
 }

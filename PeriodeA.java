@@ -11,7 +11,7 @@ public class PeriodeA {
 
     RandomVariateGen genArrA;
     RandomVariateGen genServA;
-    LinkedList<ClientA> servList = new LinkedList<ClientA> ();
+    LinkedList<Client> servList = new LinkedList<Client> ();
 
 
 
@@ -32,14 +32,14 @@ public class PeriodeA {
     class Arrival extends Event {
         public void actions() {
             new Arrival().schedule (genArrA.nextDouble()); // Next arrival.
-            ClientA cust = new ClientA();  // Cust just arrived.
+            Client cust = new Client();  // Cust just arrived.
             cust.arrivTime = Sim.time();
             cust.servTime = genServA.nextDouble();
             if (servList.size() > nbCaissiers + 1) {       // Must join the queue.
                 Simulateur.waitListA.addLast (cust);
                 Simulateur.totWait.update (Simulateur.waitListA.size());
             } else {                         // Starts service.
-                Simulateur.custWaits.add (0.0);
+                Simulateur.custWaitsA.add (0.0);
                 servList.addLast (cust);
                 new Departure().schedule (cust.servTime);
             }
@@ -51,9 +51,9 @@ public class PeriodeA {
             servList.removeFirst();
             if (Simulateur.waitListA.size() > 0) {
                 // Starts service for next one in queue.
-                ClientA cust = Simulateur.waitListA.removeFirst();
+                Client cust = Simulateur.waitListA.removeFirst();
                 Simulateur.totWait.update (Simulateur.waitListA.size());
-                Simulateur.custWaits.add (Sim.time() - cust.arrivTime);
+                Simulateur.custWaitsA.add (Sim.time() - cust.arrivTime);
                 servList.addLast (cust);
                 new Departure().schedule (cust.servTime);
             }
