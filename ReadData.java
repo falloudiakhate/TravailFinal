@@ -4,14 +4,14 @@ import java.util.ArrayList;
 import java.util.Scanner; // Import the Scanner class to read text files
 
 public class ReadData {
-    public static ArrayList readData() {
-        ArrayList donnees = new ArrayList();
+    public static ArrayList<Double> readData() {
+        ArrayList<Double> donnees = new ArrayList();
         try {
             File myObj = new File("/home/falloudiakhate/IdeaProjects/TravailFinal/src/main/java/Data.txt");
             Scanner myReader = new Scanner(myObj);
 
             while (myReader.hasNextLine()) {
-                String data = myReader.nextLine().split("=")[1];
+                double data = Double.parseDouble(myReader.nextLine().split("=")[1]);
                 donnees.add(data);
             }
 

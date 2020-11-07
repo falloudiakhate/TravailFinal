@@ -18,7 +18,7 @@ public class Journee {
     public double sigma_r;
 
     int nbCaissiers;
-    int s;
+    double s;
 
     static int currentPeriode = 1; // For storing the actual periode
 
@@ -26,7 +26,7 @@ public class Journee {
     RandomVariateGen genServA;
     RandomVariateGen retard ;
     RandomVariateGen genServB;
-    int [] lambdas;
+    double [] lambdas;
     LinkedList<Client> servList = new LinkedList<Client> ();
 
     double p;  // The probability for the client to be not present
@@ -35,7 +35,7 @@ public class Journee {
     RandomStream stream = new MRG32k3a();  // Generate the probability for the client to be not present
 
 
-    public Journee (double sigma_a, double mu_a, int [] lambdas, int nbCaisiers, double sigma_b, double mu_b, double mu_r, double sigma_r, double p, int s) {
+    public Journee (double sigma_a, double mu_a, double [] lambdas, int nbCaisiers, double sigma_b, double mu_b, double mu_r, double sigma_r, double p, double s) {
         this.lambdas = lambdas;
         genArrA = new ExponentialGen (new MRG32k3a(), lambdas[currentPeriode - 1]);
         genServA = new RandomVariateGen (new MRG32k3a(), new LognormalDist (mu_a, sigma_a));

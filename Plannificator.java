@@ -5,18 +5,18 @@ import java.util.*;
 
 class Plannificator{
 
-    public  int n1;
-    public int n2;
-    public  int n3;
-   public  int m1;
-   public int m2;
-   public  int m3;
+    public  double n1;
+    public double n2;
+    public  double n3;
+   public  double m1;
+   public double m2;
+   public  double m3;
    public double  r ;
 
    RandomStream stream = new MRG32k3a();
 
 
-    public Plannificator(int n1, int n2, int n3, int m1, int m2, int m3, double r) {
+    public Plannificator(double n1, double n2, double n3, double m1, double m2, double m3, double r) {
         this.n1 = n1;
         this.n2 = n2;
         this.n3 = n3;
@@ -85,7 +85,7 @@ class Plannificator{
 			On répartit chacun des conseillers dans les périodes ou ils travaillent
 		*/
 
-        for (int mi : new int[]{m1, m2, m3}){
+        for (double mi : new double[]{m1, m2, m3}){
             ArrayList<String> pi = new ArrayList<String>();
             for( int i=1; i < mi +1 ; i++){
                 pi.add("C"+i);
@@ -99,7 +99,7 @@ class Plannificator{
 		/*
 			On répartit chacun des caissiers dans les périodes ou ils travaillent
 		*/
-        for (int ni : new int[]{n1, n2, n3}){
+        for (double ni : new double[]{n1, n2, n3}){
             ArrayList<String> pi = new ArrayList<String>();
             for( int i=1; i < ni +1 ; i++){
                 pi.add("c"+i);
@@ -198,4 +198,5 @@ class Plannificator{
 //        System.out.println(Plannificator.clients.get(1).conseiller.toString());
 //        System.out.println(Plannificator.clients.get(1).plage);
     }
+
 }
