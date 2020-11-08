@@ -3,7 +3,7 @@ import umontreal.ssj.rng.RandomStream;
 
 import java.util.*;
 
-class Plannificator{
+public class Plannificator{
 
     /***
      * The Plannificator Class parameters
@@ -116,6 +116,10 @@ class Plannificator{
 
     }
 
+    /***
+     * La répartition des Caissiers
+     */
+
     public void repartirCaissiers() {
         /***
          * On répartit chacun des caissiers dans les périodes ou ils travaillent
@@ -129,6 +133,10 @@ class Plannificator{
         }
 
     }
+
+    /***
+     * Programation Des Rendez-Vous
+     */
     public void programmerRendezVous() {
         /***
          *  Ce tableau contiendra l'ensemble des rendez vous sous format

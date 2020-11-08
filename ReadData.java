@@ -7,7 +7,8 @@ public class ReadData {
     public static ArrayList<Double> readData() {
         ArrayList<Double> donnees = new ArrayList();
         try {
-            File myObj = new File("/home/falloudiakhate/IdeaProjects/TravailFinal/src/main/java/Data.txt");
+            String filePath = new File("src/main/java/Data.txt").getAbsolutePath();
+            File myObj = new File( filePath);
             Scanner myReader = new Scanner(myObj);
 
             while (myReader.hasNextLine()) {

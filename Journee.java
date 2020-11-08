@@ -185,7 +185,6 @@ public class Journee {
                 if(servList.size() < Plannificator.repartitionCaissiers.get(currentPeriode - 1).size() + 1){
                     //Start Service
                     Simulateur.custWaitsA.add (0.0);
-                    Simulateur.statA.add (0.0);
                     servList.addLast (client);
                     client.type_serveur = "caissier";
 
@@ -197,7 +196,7 @@ public class Journee {
                  */
                 else if(conseiller != null && Simulateur.waitListA.size() == 0){
                     Simulateur.custWaitsA.add (0.0);
-                    Simulateur.statA.add (0.0);
+
                     /**
                      * The conseiler become occupied because he has taken a new client of type A
                      */
@@ -270,7 +269,6 @@ public class Journee {
                         Client cust = Simulateur.waitListA.removeFirst();
                         Simulateur.totWait.update (Simulateur.waitListA.size());
                         Simulateur.custWaitsA.add (Sim.time() - cust.arrivTime);
-                        Simulateur.statA.add (Sim.time() - cust.arrivTime);
                         servList.addLast (cust);
                         new Departure(client).schedule (cust.servTime);
                     }

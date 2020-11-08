@@ -14,7 +14,7 @@ import java.util.Scanner;
 
 public class Simulateur {
     static  Tally custWaitsA = new Tally ("Waiting times of Client A");
-    static TallyStore statA = new TallyStore("Statistics on times of Client A");
+//    static TallyStore statA = new TallyStore("Statistics on times of Client A");
     static  Tally custWaitsB   = new Tally ("Waiting times of Client B ");
     static  Accumulate totWait  = new Accumulate ("Size of queue");
     static  LinkedList<Client> waitListA = new LinkedList<Client> ();
@@ -67,7 +67,6 @@ public class Simulateur {
 
         System.out.println ("W"+j+",a : "+Simulateur.custWaitsA.sum());
         System.out.println ("W"+j+",b : "+Simulateur.custWaitsB.sum());
-        System.out.println(Simulateur.statA.getArray());
     }
 
     public static  void simulateDays(int n){
@@ -80,7 +79,7 @@ public class Simulateur {
      */
     public static void main (String[] args) {
 
-        Simulateur.simulateDays(1);
+        Simulateur.simulateDays(5);
 
         System.out.println(custWaitsA.report());
         System.out.println(custWaitsB.report());
