@@ -2,7 +2,9 @@ public class Client{
     double arrivTime;
     double servTime;
 
-    // Specific to client of type B
+    /**
+     *   Specific to client of type B
+     */
     String conseiller = "";
     String plage;
     int numConseiller;
