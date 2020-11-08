@@ -55,6 +55,10 @@ public class Simulateur {
 
     static  double [] lambdas = {λ1, λ2, λ3};
 
+    /**
+     * The j Days of simulation
+     * @param j
+     */
     public static void simulateOneDay(int j){
 
         Plannificator rendezVous = new Plannificator(n1, n2, n3,m1, m2, m3, r);
@@ -70,6 +74,10 @@ public class Simulateur {
          System.out.println ("W"+j+",b : "+Simulateur.custWaitsB.sum());
     }
 
+    /***
+     * n is the numbers of days
+     * @param n
+     */
     public static  void simulateDays(int n){
         for(int i =1; i<n+1 ; i++) simulateOneDay(i);
     }
@@ -89,7 +97,7 @@ public class Simulateur {
                 "Clients", "Temps d'attente", statA.getArray());
         hist.view(600, 600);
         HistogramChart hist2 = new HistogramChart("Histogramme pour les clients de TYPE B pour n jours",
-                "Clients", "Temps d'attente", statA.getArray());
+                "Clients", "Temps d'attente", statB.getArray());
         hist.view(600, 600);
 
     }
