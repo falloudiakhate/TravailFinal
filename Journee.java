@@ -1,3 +1,4 @@
+package travail_final;
 import umontreal.ssj.probdist.LognormalDist;
 import umontreal.ssj.probdist.NormalDist;
 import umontreal.ssj.randvar.ExponentialGen;
@@ -9,6 +10,7 @@ import umontreal.ssj.simevents.Sim;
 import umontreal.ssj.stat.TallyStore;
 
 import java.util.*;
+
 
 public class Journee {
 
@@ -25,7 +27,7 @@ public class Journee {
      * For storing the actual periode
      */
     static int currentPeriode = 1;
-
+    static int numberOfClientB = 0;
     RandomVariateGen genArrA;
     RandomVariateGen genServA;
     RandomVariateGen retard ;
@@ -96,6 +98,8 @@ public class Journee {
                 int arrivalTime = Journee.convertTimeInSecond(cl.plage) + (int)retard.nextDouble();
                 if(arrivalTime < 0 ) arrivalTime = 0;
                 new Journee.Arrival(cl).schedule (arrivalTime);
+            	numberOfClientB ++;
+
             }
 
         }
@@ -108,9 +112,12 @@ public class Journee {
      */
     public void simulateOneRun(double timeHorizon) {
         Sim.init();
+    	Journee.currentPeriode = 1;
+        new Journee.NextPeriode().schedule(7200);
         new Journee.EndOfSim().schedule (timeHorizon);
-        new Journee.Arrival(new Client()).schedule (genArrA.nextDouble());
+        new Journee.Arrival(new Client('A')).schedule (genArrA.nextDouble());
         genArrB();
+        
         Sim.start();
     }
 
@@ -145,6 +152,29 @@ public class Journee {
       }
       return null;
     }
+    public String comparateurConseiller (String currentConseiller, double simulation_time){
+
+        for(int i = 0; i < Plannificator.tab_rendez_vous.size(); i ++){
+            Hashtable<String, ArrayList<String>> plagesConseillers = Plannificator.tab_rendez_vous.get(i);
+            String conseiller = plagesConseillers.keySet().iterator().next();
+            
+            if(currentConseiller != conseiller) continue;
+            
+            /***
+             * We check if the conseiller is free and if the conseiller belongs to this actual periode
+             */
+            for (int j = 0;
+                 (j < plagesConseillers.get(conseiller).size()) &&
+                 (!Plannificator.etatConseiller.get(conseiller));  // Free ?
+                 j ++)
+            {
+                if(Journee.convertTimeInSecond(plagesConseillers.get(conseiller).get(j).split(" ")[0]) - simulation_time > s){
+                    return conseiller;
+                }
+            }
+        }
+        return null;
+    }
 
     class Arrival extends Event {
 
@@ -159,25 +189,25 @@ public class Journee {
         public void actions() {
 
             client.arrivTime = Sim.time();
-
+            if(client.arrivTime > 7200 * 3) return;
             /**
              * If the arrived client is an A type
              */
-            if(client.conseiller == ""){
+            if(client.type == 'A'){
                 /**
                  * Next arrival.
-                 * If th client arrive after the end of the day; he won't be served
+                 * If the client arrive after the end of the day; he won't be served
                  */
                 if (Sim.time() > 7200 * 3 - 1) return;
 
-                new Arrival(new Client()).schedule (genArrA.nextDouble());
+                new Arrival(new Client('A')).schedule (genArrA.nextDouble());
                 client.servTime = genServA.nextDouble();
 
                 /**
-                 *  Check if the returned conseiller dont have a RV in s seconds
+                 *  Check if the returned conseiller don't have a RV in s seconds
                  */
                 String conseiller = comparateur(Sim.time());
-
+                
 
                 /**
                  * Check first if the client can enter the List of service
@@ -195,7 +225,7 @@ public class Journee {
                 /**
                  * If not the case, cherching for a free conseiller ...
                  */
-                else if(conseiller != null && Simulateur.waitListA.size() == 0){
+                else if(conseiller != null && Simulateur.waitListA.size() == 0 && (Plannificator.waitListConseiller.get(conseiller).size() == 0)){
                     Simulateur.custWaitsA.add (0.0);
                     Simulateur.statA.add (0.0);
                     /**
@@ -206,6 +236,27 @@ public class Journee {
                     client.conseiller = conseiller;
                     new Departure(client).schedule (client.servTime);
                 }
+                /*
+                 * If the conseiller is free and the waitlist of the client type A is not empty
+                 * The conseiller will serve the first client of the wait list
+                 */
+                else if(conseiller != null && Simulateur.waitListA.size() > 0 && (Plannificator.waitListConseiller.get(conseiller).size() == 0)) {
+                	Client waiting_client = Simulateur.waitListA.removeFirst();
+                	waiting_client.type_serveur = "conseiller";
+                	waiting_client.conseiller = conseiller;
+                	
+                	// The incoming client enters in the waitlist of client A
+                    Simulateur.waitListA.addLast(client);
+                    Simulateur.totWait.update (Simulateur.waitListA.size());
+
+            		Simulateur.custWaitsA.add (Sim.time() - waiting_client.arrivTime);
+            		Simulateur.statA.add (0.0);
+            		
+                    Plannificator.etatConseiller.put(conseiller, true);
+                    
+                    new Journee.Departure(waiting_client).schedule (waiting_client.servTime);
+
+                }
                 else {
                     Simulateur.waitListA.addLast(client);
                     Simulateur.totWait.update (Simulateur.waitListA.size());
@@ -215,34 +266,32 @@ public class Journee {
             else{
                 /**
                  * We have a client of type B
-                 * Check if the conseiller is free
-                 * if true, he enters in the waitlist of the conseiller
-                 * else the client enters in service
+                 * Check if the conseiller is free in s seconds and there is a client in waitlist of type A
+                 * If it's the case, this client of type A will be taken
+                 * Else if the conseiller is free and there is nobody in the waitlist of the conseiller the client enters in service
+                 * Else the client will enter the waitlist
                  */
-
                 client.servTime = genServB.nextDouble();
-                // If the conseiller is busy or his waiting list is not empty, the client will enter the wiating list
-
-                if(Plannificator.etatConseiller.get(client.conseiller) || Plannificator.waitListConseiller.get(client.conseiller).size() > 0) {
-                    /**
-                     * We add the client in the waitlist of the conseiller
-                     */
-                    Plannificator.waitListConseiller.get(client.conseiller).addLast(client);
-
-                    /**
-                     * We update the totwait by adding the size of the waitlist of the client
-                     */
-                    Simulateur.totWait.update(Plannificator.waitListConseiller.get(client.conseiller).size());
-                }
-                else {
-
+         
+                if(!Plannificator.etatConseiller.get(client.conseiller) && Plannificator.waitListConseiller.get(client.conseiller).size() == 0){
                     /**
                      * Starts service
                      */
+
                     Simulateur.custWaitsB.add (0.0);
                     Plannificator.etatConseiller.put(client.conseiller, true);
                     new Departure(client).schedule (client.servTime);
                 }
+                else {
+                	/**
+                    * We add the client in the waitlist of the conseiller
+                    */
+                   Plannificator.waitListConseiller.get(client.conseiller).addLast(client);
+                   /**
+                    * We update the totwait by adding the size of the waitlist of the client
+                    */
+                   Simulateur.totWait.update(Plannificator.waitListConseiller.get(client.conseiller).size());
+                } 
             }
 
         }
@@ -257,13 +306,32 @@ public class Journee {
 
         public void actions() {
 
-            if (client.conseiller == "") {
+            if (client.type == 'A') {
                 /**
-                 * If the arrived client is an A type
+                 * If the leaving client is an A type:
+                 * If he was served by a caissier, we will take the next one in the waitList of client of type A
+                 * Else the conseiller who where serving him will be free.
                  */
-                if(client.type_serveur == "caissier"){
+
+                //if(client.type_serveur == "caissier")
+                // The client was taken by a server of type conseiller, the conseiller will be free
+                if(client.type_serveur == "conseiller"){
+
+                	Plannificator.etatConseiller.put(client.conseiller, false);
+                	if(!Plannificator.waitListConseiller.get(client.conseiller).isEmpty()) {
+                        Client waiting_client = Plannificator.waitListConseiller.get(this.client.conseiller).removeFirst();
+                        Simulateur.totWait.update(Plannificator.waitListConseiller.get(this.client.conseiller).size());
+                        Simulateur.custWaitsB.add(Sim.time() - waiting_client.arrivTime);
+                        Plannificator.etatConseiller.put(waiting_client.conseiller, true);
+                        
+                        new Departure(waiting_client).schedule(client.servTime);
+                    }
+                }
+                else{
                     servList.removeFirst();
+                    // Taking the next client in the queue
                     if (Simulateur.waitListA.size() > 0) {
+                    
                         /**
                          * Starts service for next one in queue.
                          */
@@ -272,30 +340,42 @@ public class Journee {
                         Simulateur.custWaitsA.add (Sim.time() - cust.arrivTime);
                         Simulateur.statA.add (Sim.time() - cust.arrivTime);
                         servList.addLast (cust);
-                        new Departure(client).schedule (cust.servTime);
+                        
+                        new Departure(cust).schedule (cust.servTime);
                     }
                 }
-                else{
-                    if(Plannificator.waitListConseiller.get(this.client.conseiller).size() > 0){
-                        Client client = Plannificator.waitListConseiller.get(this.client.conseiller).removeFirst();
-                        Simulateur.totWait.update (Plannificator.waitListConseiller.get(this.client.conseiller).size());
-                        Simulateur.custWaitsB.add (Sim.time() - client.arrivTime);
-                        Plannificator.etatConseiller.put(client.conseiller, true);
-
-                        new Departure(client).schedule(client.servTime);
-                    }
-                }
-
             }
             else {
+            	/**
+            	 * A client of type B is gone!
+            	 * We check if his conseiller has a client in his waitlist
+            	 * If its the case, the conseiller will take a client in his wait list
+            	 * Else the conseiller will take a client int the waitList of client of type A if there is someone there
+            	 */
+                Plannificator.etatConseiller.put(client.conseiller, false);
 
-                if(Plannificator.waitListConseiller.get(this.client.conseiller).size() > 0) {
-                    Client client = Plannificator.waitListConseiller.get(this.client.conseiller).removeFirst();
+            	String conseiller = comparateurConseiller(client.conseiller, Sim.time()); // If the conseiller will be free for s seconds
+                
+            	if(Plannificator.waitListConseiller.get(this.client.conseiller).size() > 0) {
+                    Client waiting_client = Plannificator.waitListConseiller.get(this.client.conseiller).removeFirst();
                     Simulateur.totWait.update(Plannificator.waitListConseiller.get(this.client.conseiller).size());
-                    Simulateur.custWaitsB.add(Sim.time() - client.arrivTime);
-                    Plannificator.etatConseiller.put(client.conseiller, true);
-
-                    new Departure(client).schedule(client.servTime);
+                    Simulateur.custWaitsB.add(Sim.time() - waiting_client.arrivTime);
+                    Plannificator.etatConseiller.put(waiting_client.conseiller, true);
+                    
+                    new Departure(waiting_client).schedule(client.servTime);
+                }
+                else if(conseiller != null && Simulateur.waitListA.size() != 0){
+                	
+                	Client waiting_client = Simulateur.waitListA.removeFirst();
+                	Simulateur.custWaitsA.add (Sim.time() - waiting_client.arrivTime);
+                    Simulateur.statA.add (Sim.time() - waiting_client.arrivTime);
+                    /**
+                     * The conseiler become occupied because he has taken a new client of type A
+                     */
+                    Plannificator.etatConseiller.put(conseiller, true);
+                    waiting_client.type_serveur = "conseiller";
+                    waiting_client.conseiller = conseiller;
+                    new Departure(waiting_client).schedule (waiting_client.servTime);
                 }
                 else{
                     Plannificator.etatConseiller.put(client.conseiller, false);
@@ -310,14 +390,18 @@ public class Journee {
         */
         @Override
         public void actions() {
-            Journee.currentPeriode ++;
-            genArrA = new ExponentialGen (new MRG32k3a(), lambdas[currentPeriode - 1]);
-            if(currentPeriode < 3) new NextPeriode().schedule(7200);
+            if(currentPeriode < 3) {
+                Journee.currentPeriode ++;
+                genArrA = new ExponentialGen (new MRG32k3a(), lambdas[currentPeriode - 1]);
+                new NextPeriode().schedule(7200);
+            }
         }
     }
     class EndOfSim extends Event {
         public void actions() {
-            if(Simulateur.waitListA.size() > 0) new Journee.EndOfSim().schedule (Simulateur.custWaitsA.average());
+            if(Simulateur.waitListA.size() > 0) {
+            	new Journee.EndOfSim().schedule (Simulateur.custWaitsA.average());
+            }
             else Sim.stop();
         }
     }

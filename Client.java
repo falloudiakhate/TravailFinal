@@ -1,12 +1,16 @@
+package travail_final;
 public class Client{
     double arrivTime;
     double servTime;
-
+    char type;
     /**
-     *   Specific to client of type B
+     *   Specific to client of type 
      */
     String conseiller = "";
     String plage;
-    int numConseiller;
     String type_serveur;
+    
+    public Client(char type) {
+    	this.type = type;
+    }
 }

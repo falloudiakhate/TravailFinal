@@ -1,3 +1,4 @@
+package travail_final;
 import umontreal.ssj.rng.MRG32k3a;
 import umontreal.ssj.rng.RandomStream;
 
@@ -17,30 +18,6 @@ class Plannificator{
     public double  r ;
 
    RandomStream stream = new MRG32k3a();
-
-    /***
-     * The Constructor of the Plannificator Class
-     * @param n1
-     * @param n2
-     * @param n3
-     * @param m1
-     * @param m2
-     * @param m3
-     * @param r
-     */
-    public Plannificator(double n1, double n2, double n3, double m1, double m2, double m3, double r) {
-        this.n1 = n1;
-        this.n2 = n2;
-        this.n3 = n3;
-
-        this.m1 = m1;
-        this.m2 = m2;
-        this.m3 = m3;
-        this.r = r;
-
-        init();
-    }
-
 
     static ArrayList<String> conseillers = new ArrayList<String>();
     static Hashtable<Integer, String> plageHoraire = new Hashtable<>();
@@ -65,6 +42,62 @@ class Plannificator{
     /***
      * Méthode pour définir les conseillers
      */
+    
+    /***
+     * La répartition des conseillers dans chaque plage
+     */
+    static ArrayList<ArrayList<String>> repartitionConseillers = new ArrayList<ArrayList<String>>();
+
+    static ArrayList<ArrayList<String>> repartitionCaissiers = new ArrayList<ArrayList<String>>();
+
+    static ArrayList<Client> clients = new ArrayList<Client>();
+
+    /***
+     * Contient les rendez vous de chaque conseiller
+     */
+    static ArrayList<Hashtable<String, ArrayList<String>>> tab_rendez_vous = new ArrayList<Hashtable<String, ArrayList<String>>>();
+
+    static Hashtable<String, Boolean> etatConseiller = new Hashtable<String, Boolean>();
+    
+    
+
+    /***
+     * The Constructor of the Plannificator Class
+     * @param n1
+     * @param n2
+     * @param n3
+     * @param m1
+     * @param m2
+     * @param m3
+     * @param r
+     */
+    public Plannificator(double n1, double n2, double n3, double m1, double m2, double m3, double r) {
+    	clearAll();
+    	this.n1 = n1;
+        this.n2 = n2;
+        this.n3 = n3;
+
+        this.m1 = m1;
+        this.m2 = m2;
+        this.m3 = m3;
+        this.r = r;
+        
+        init();
+    }
+
+    static void clearAll() {
+    	
+    	conseillers.clear();
+        plageHoraire.clear();
+        waitListConseiller.clear();
+        repartitionConseillers.clear();
+        repartitionCaissiers.clear();
+        clients.clear();
+        tab_rendez_vous.clear();
+        etatConseiller.clear();
+        
+    }
+    
     public void init(){
         for(Integer i = 1; i<Math.max(Math.max(m1, m2), m3) + 1; i++){
             conseillers.add("C"+i.toString());
@@ -85,22 +118,6 @@ class Plannificator{
 
     }
 
-
-    /***
-     * La répartition des conseillers dans chaque plage
-     */
-    static ArrayList<ArrayList<String>> repartitionConseillers = new ArrayList<ArrayList<String>>();
-
-    static ArrayList<ArrayList<String>> repartitionCaissiers = new ArrayList<ArrayList<String>>();
-
-    static ArrayList<Client> clients = new ArrayList<Client>();
-
-    /***
-     * Contient les rendez vous de chaque conseiller
-     */
-    static ArrayList<Hashtable<String, ArrayList<String>>> tab_rendez_vous = new ArrayList<Hashtable<String, ArrayList<String>>>();
-
-    static Hashtable<String, Boolean> etatConseiller = new Hashtable<String, Boolean>();
 
     public void repartirConseiller() {
         /***
@@ -159,7 +176,7 @@ class Plannificator{
                     /**
                      * Puis on ajoute le client à la liste de client avec un rendez vous
                      */
-                    Client client = new Client();
+                    Client client = new Client('B');
                     client.conseiller = conseiller;
                     client.plage = plages.get(i);
                     clients.add(client);

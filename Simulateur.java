@@ -1,3 +1,4 @@
+package travail_final;
 import umontreal.ssj.rng.MRG32k3a;
 import umontreal.ssj.simevents.Accumulate;
 //import umontreal.ssj.stat.Tally;
@@ -65,9 +66,8 @@ public class Simulateur {
         Journee journee_1 = new Journee (sigma_a, mu_a, lambdas,sigma_b ,mu_b ,μr, σr,p , s);
         journee_1.simulateOneRun (7200 * 3);
 
-        System.out.println ("W"+j+",a : "+Simulateur.custWaitsA.sum());
-        System.out.println ("W"+j+",b : "+Simulateur.custWaitsB.sum());
-        System.out.println(Simulateur.statA.getArray());
+        // System.out.println ("W"+j+",a : "+Simulateur.custWaitsA.sum());
+        // System.out.println ("W"+j+",b : "+Simulateur.custWaitsB.sum());
     }
 
     public static  void simulateDays(int n){
@@ -80,10 +80,14 @@ public class Simulateur {
      */
     public static void main (String[] args) {
 
-        Simulateur.simulateDays(1);
+        Simulateur.simulateDays(5);
 
         System.out.println(custWaitsA.report());
         System.out.println(custWaitsB.report());
         System.out.println(totWait.report());
+        // HistogramChart hist = new HistogramChart("Histogramme pour les clients de TYPE A pour n jours",
+        //        "Clients", "Temps d'attente", statA.getArray());
+        // hist.view(600, 600);
+
     }
 }
