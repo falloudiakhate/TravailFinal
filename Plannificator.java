@@ -1,3 +1,5 @@
+package travail_final;
+
 import umontreal.ssj.rng.MRG32k3a;
 import umontreal.ssj.rng.RandomStream;
 
@@ -224,13 +226,13 @@ public class Plannificator{
          * Si le coneiller est dans une période donnée, les plages correspondantes sont ajoutées
          */
         if(Plannificator.repartitionConseillers.get(0).contains(conseiller)) {
-            for(int i = 1; i <4 ; i++) plage.add(plageHoraire.get(i));
+            for(int i = 1; i <5 ; i++) plage.add(plageHoraire.get(i));
         }
         if(Plannificator.repartitionConseillers.get(1).contains(conseiller)) {
-            for(int i = 4; i < 8; i++) plage.add(plageHoraire.get(i));
+            for(int i = 5; i < 9; i++) plage.add(plageHoraire.get(i));
         }
         if(Plannificator.repartitionConseillers.get(2).contains(conseiller)) {
-            for(int i = 8; i < 12; i++) plage.add(plageHoraire.get(i));
+            for(int i = 9; i < 13; i++) plage.add(plageHoraire.get(i));
         }
         return plage;
 

@@ -1,3 +1,4 @@
+package travail_final;
 public class Client{
     double arrivTime;
     double servTime;

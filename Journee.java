@@ -1,3 +1,5 @@
+package travail_final;
+
 import umontreal.ssj.probdist.LognormalDist;
 import umontreal.ssj.probdist.NormalDist;
 import umontreal.ssj.randvar.ExponentialGen;
